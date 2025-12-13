@@ -1,38 +1,23 @@
-# tests/test_carrito.py
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from pages.login_page import LoginPage
+from pages.inventory_page import InventoryPage
+from pages.cart_page import CartPage
 
 def test_agregar_producto_carrito(driver):
-    """Valida la funcionalidad de agregar un producto al carrito en saucedemo.com"""
+    login = LoginPage(driver)
+    inventario = InventoryPage(driver)
+    carrito = CartPage(driver)
 
-    driver.get("https://www.saucedemo.com/")
-    wait = WebDriverWait(driver, 10)
+    login.abrir()
+    login.ingresar_usuario("standard_user")
+    login.ingresar_password("secret_sauce")
+    login.click_login()
 
-    # --- LOGIN ---
-    wait.until(EC.visibility_of_element_located((By.ID, "user-name"))).send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("secret_sauce")
-    driver.find_element(By.ID, "login-button").click()
+    inventario.agregar_primer_producto()
+    inventario.ir_al_carrito()
 
-    # --- ESPERA A INVENTARIO ---
-    wait.until(EC.url_contains("/inventory.html"))
+    items = carrito.obtener_items()
+    assert len(items) > 0, "❌ No se pudo agregar el producto al carrito"
 
-    # --- AGREGAR EL PRIMER PRODUCTO ---
-    primer_boton_add = driver.find_element(By.CLASS_NAME, "btn_inventory")
-    primer_boton_add.click()
+    print("✅ Producto agregado correctamente al carrito")
 
-    # --- VERIFICAR CONTADOR DEL CARRITO ---
-    contador_carrito = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "shopping_cart_badge")))
-    assert contador_carrito.text == "1", "❌ El contador del carrito no se incrementó correctamente"
-
-    # --- NAVEGAR AL CARRITO ---
-    driver.find_element(By.ID, "shopping_cart_container").click()
-    wait.until(EC.url_contains("/cart.html"))
-
-    # --- VERIFICAR PRODUCTO EN EL CARRITO ---
-    producto_carrito = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "inventory_item_name")))
-    nombre_producto = producto_carrito.text
-    assert nombre_producto != "", "❌ No se detectó producto en el carrito"
-
-    print(f"✅ Producto '{nombre_producto}' agregado correctamente al carrito.")

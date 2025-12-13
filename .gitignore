@@ -1,5 +1,18 @@
-venv/ 
-__pycache__/ 
-.pytest_cache/ 
-*.pyc 
-.vscode/ 
+# Python
+__pycache__/
+*.pyc
+
+# Pytest
+.pytest_cache/
+
+# Entornos virtuales
+venv/
+.env/
+
+# Reportes y evidencias
+reports/
+screenshots/
+
+# Sistema
+.DS_Store
+Thumbs.db

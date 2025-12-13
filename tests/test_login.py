@@ -1,27 +1,22 @@
 import pytest
-from utils.driver_setup import create_driver
-from selenium.webdriver.common.by import By
-import time
+from pages.login_page import LoginPage
+from pages.inventory_page import InventoryPage
 
-@pytest.fixture
-def setup():
-    driver = create_driver()
-    yield driver
-    driver.quit()
+def test_login_exitoso(driver):
+    login = LoginPage(driver)
+    inventario = InventoryPage(driver)
 
-def test_login(setup):
-    driver = setup
-    driver.get("https://www.saucedemo.com/")
+    # Abrir página
+    login.abrir()
 
-    # Ingresar credenciales
-    driver.find_element(By.ID, "user-name").send_keys("standard_user")
-    driver.find_element(By.ID, "password").send_keys("secret_sauce")
-    driver.find_element(By.ID, "login-button").click()
+    # Completar login
+    login.ingresar_usuario("standard_user")
+    login.ingresar_password("secret_sauce")
+    login.click_login()
 
-    time.sleep(2)
+    # Validar
+    assert "inventory" in driver.current_url, "❌ El login no redirigió al inventario"
+    assert inventario.titulo() == "Products", "❌ No se cargó la página de productos"
 
-    # Validar login correcto
-    assert "inventory" in driver.current_url, "❌ No se redirigió correctamente al inventario"
-    assert "Swag Labs" in driver.title, "❌ El título no es el esperado"
+    print("✅ Login exitoso usando POM")
 
-    print("✅ Login exitoso")
